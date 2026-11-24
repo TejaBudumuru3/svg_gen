@@ -59,6 +59,7 @@ STRUCTURE EXAMPLE (structure only, your diagram will be different)
 export interface PromptInput{
     text: string;
     title?: string;
+    previousSvg?: string;
     failures?: string[];
 }
 
@@ -69,6 +70,10 @@ export function buildUserPrompt(PromptInput: PromptInput){
 
     if(PromptInput.failures?.length){
         prompt += `\n\n Your previous attempt was failed due to these checks:\n - ${PromptInput.failures.join("- ")} \n\n nFix every one of them and return the complete corrected SVG. Do not explain.`;  
+    }
+
+    if(PromptInput.previousSvg){
+        prompt += `\n\nHere is the Previously generated SVG:\n${PromptInput.previousSvg}\n\nKeep everything that already works and change only what is needed to fix the failed checks.`
     }
 
     return prompt
