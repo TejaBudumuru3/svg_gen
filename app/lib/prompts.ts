@@ -20,6 +20,7 @@ LAYOUT
 - Estimate text width as 0.6 x font-size x number of characters. Do not let a label run past the safe area. Use text-anchor="middle" or "end" near the edges.
 - No overlapping labels. Keep at least 20px between labels. Place each label next to the part it names, with a thin line if needed.
 - Use font-family="Arial, sans-serif", fill #1a1a1a, size 26 for the heading, 16 to 20 for labels. Never go below 14.
+- Text formatting: Never nest HTML tags inside <text>. For mixed styling or bold words inside a sentence, use <tspan font-weight="bold">word</tspan> or <tspan fill="...">word</tspan>.
 - Use high-contrast colours on white, at most 6 colours. Do not rely on colour alone to carry meaning.
 
 ANIMATION
@@ -42,7 +43,7 @@ FORBIDDEN
 - External references of any kind: http links, @import, external fonts, url(http...). Internal references to an id in the same file are fine.
 
 SELF-CHECK
-Before answering, silently verify: well-formed XML, exact viewBox, <title> present, at least 6 <text> elements, all required labels present, a looping animation present, everything inside the safe area at every moment, nothing forbidden. Fix any problem, then output only the SVG.
+Before answering, silently verify: well-formed XML, exact viewBox, <title> present, at least 6 <text> elements, all required labels present, no HTML tags like <b> or <span> inside text, a looping animation present, everything inside the safe area at every moment, nothing forbidden. Fix any problem, then output only the SVG.
 
 STRUCTURE EXAMPLE (structure only, your diagram will be different)
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
@@ -56,7 +57,7 @@ STRUCTURE EXAMPLE (structure only, your diagram will be different)
 </svg>`;
 
 
-export interface PromptInput{
+export interface PromptInput {
     text: string;
     title?: string;
     previousSvg?: string;
@@ -64,20 +65,20 @@ export interface PromptInput{
     details?: string;
 }
 
-export function buildUserPrompt(PromptInput: PromptInput){
+export function buildUserPrompt(PromptInput: PromptInput) {
     let prompt = PromptInput.title ? `Concept: ${PromptInput.title}` : "";
-    
+
     prompt += `\nConcept description: ${PromptInput.text}`
 
-    if(PromptInput.details){
+    if (PromptInput.details) {
         prompt += `\n\n Here is the Diagram guidance:\n${PromptInput.details}`
     }
 
-    if(PromptInput.failures?.length){
-        prompt += `\n\n Your previous attempt was failed due to these checks:\n - ${PromptInput.failures.join("- ")} \n\n nFix every one of them and return the complete corrected SVG. Do not explain.`;  
+    if (PromptInput.failures?.length) {
+        prompt += `\n\n Your previous attempt was failed due to these checks:\n - ${PromptInput.failures.join("- ")} \n\nFix every one of them and return the complete corrected SVG. Do not explain.`;
     }
 
-    if(PromptInput.previousSvg){
+    if (PromptInput.failures?.length && PromptInput.failures?.length > 0 && PromptInput.previousSvg) {
         prompt += `\n\nHere is the Previously generated SVG:\n${PromptInput.previousSvg}\n\nKeep everything that already works and change only what is needed to fix the failed checks.`
     }
 

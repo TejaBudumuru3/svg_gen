@@ -6,38 +6,39 @@ export interface Checks {
     reason: string | null;
 }
 
-function svgParse(svg: string): string | null{
-    if(!svg) return "no <svg> element found in the output";
+function svgParse(svg: string): string | null {
+    if (!svg) return "no <svg> element found in the output";
     const result = XMLValidator.validate(svg)
     return result === true ? null : `invalid XML: ${result.err.msg}`
 }
 
 function checkInsideViewBox(svg: string): string | null {
+    if (!svg.includes('viewBox="')) return "missing viewBox or invalid";
     const viewBox = svg.split('viewBox="')[1].split('"')[0] // it returns 0 0 600 400 from 'viewBox="0 0 600 400"'
-    if (!viewBox) return "missing viewBox or invalid"
+    if (!viewBox) return "missing viewBox params or invalid"
     const [minX, minY, width, height] = viewBox.trim().split(" ").map(Number)
-    
-    for(const m of svg.matchAll(/\s(x|cx|x1|x2)="(-?[\d.]+)"/g)){
+
+    for (const m of svg.matchAll(/\s(x|cx|x1|x2)="(-?[\d.]+)"/g)) {
         const value = Number(m[2])
-        if(value < minX || value > minX + width) return `${m[1]} = ${value} is outside the viewBox`
+        if (value < minX || value > minX + width) return `${m[1]} = ${value} is outside the viewBox`
     }
 
-    for (const m of svg.matchAll(/\s(y|cy|y1|y2)="(-?[\d.]+)"/g)){
+    for (const m of svg.matchAll(/\s(y|cy|y1|y2)="(-?[\d.]+)"/g)) {
         const value = Number(m[2])
-        if(value < minY || value > minY + height) return `${m[1]} = ${value} is outside the viewBox`
+        if (value < minY || value > minY + height) return `${m[1]} = ${value} is outside the viewBox`
     }
 
     return null
 }
 
 function checkTitleAndLabel(svg: string): string | null {
-    if( !svg.includes("<title>")) return "missing <title> element"
+    if (!svg.includes("<title>")) return "missing <title> element"
     const labels = svg.split("<text").length - 1
     return labels >= 3 ? null : `only ${labels} <text> labels, need at least 3`
 }
 
 function checkAnimations(svg: string): string | null {
-    const animationTag = svg.includes("animate") || svg.includes("<set");
+    const animationTag = svg.includes("<animate ") || svg.includes("<animateTransform") || svg.includes("<animateMotion") || svg.includes("<set ");
     const cssAnimation = svg.includes("@keyframes") && svg.includes("animation:")
     return animationTag || cssAnimation ? null : "no animations found, atleast 1 animation required"
 }
@@ -47,7 +48,7 @@ function checkSafeContent(svg: string): string | null {
     if (/\son[a-z]+\s*=/.test(text)) return "contains an event handler attribute (on...=)";
     const banned = [
         "<script", "<foreignobject", "<iframe", "<embed", "<object", "<image",
-    "javascript:", "data:", "http:", "https:", "@import",
+        "javascript:", "data:", "http:", "https:", "@import",
     ]
 
     const found = banned.find(w => text.includes(w))
@@ -59,16 +60,16 @@ const checks = [
     { name: "inside viewbox", run: checkInsideViewBox },
     { name: "check safety", run: checkSafeContent },
     { name: "check animations", run: checkAnimations },
-    { name: "check title and label", run: checkTitleAndLabel}
+    { name: "check title and label", run: checkTitleAndLabel }
 ]
 
 export function runChecks(svg: string): Checks[] {
-    return checks.map(({name, run})=> {
+    return checks.map(({ name, run }) => {
         const reason = run(svg)
         return { name, passed: reason === null, reason: reason ? reason : null }
     });
 }
 
-export function failureReasons(results: Checks[]): string[]{
+export function failureReasons(results: Checks[]): string[] {
     return results.filter(r => !r.passed).map((r) => `${r.name}: ${r.reason}`)
 }
