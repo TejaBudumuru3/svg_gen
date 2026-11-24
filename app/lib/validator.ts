@@ -39,11 +39,11 @@ function checkTitleAndLabel(svg: string): string | null {
 function checkAnimations(svg: string): string | null {
     const animationTag = svg.includes("animate") || svg.includes("<set");
     const cssAnimation = svg.includes("@keyframes") && svg.includes("animation:")
-    return animationTag || cssAnimation ? null : "no animations found, animation required"
+    return animationTag || cssAnimation ? null : "no animations found, atleast 1 animation required"
 }
 
 function checkSafeContent(svg: string): string | null {
-    const text = svg.replaceAll("https://www.ww3.org", "").toLowerCase();
+    const text = svg.replaceAll("http://www.w3.org", "").toLowerCase();
     if (/\son[a-z]+\s*=/.test(text)) return "contains an event handler attribute (on...=)";
     const banned = [
         "<script", "<foreignobject", "<iframe", "<embed", "<object", "<image",

@@ -10,7 +10,7 @@ const ai = new GoogleGenAI({
 
 const COST_CAP = { input: 0.30, output: 2.50 }
 
-async function generateSVG(input:PromptInput) {
+export async function generateSVG(input:PromptInput) {
     const prompt = buildUserPrompt(input);
     const res = await ai.models.generateContent({
         model: MODEL,
@@ -21,8 +21,8 @@ async function generateSVG(input:PromptInput) {
         }
     })
     const usage = res.usageMetadata;
-    const inputTokens = usage?.promptTokenCount;
-    const outputTokens = (usage?.totalTokenCount! - inputTokens!) || 0;
+    const inputTokens = usage?.promptTokenCount ? usage.promptTokenCount : 0;
+    const outputTokens = usage?.totalTokenCount ? (usage.totalTokenCount - inputTokens) : 0;
 
     return {
         svg: res.text?.match(/<svg[\s\S]*<\/svg>/)?.[0] ?? "",

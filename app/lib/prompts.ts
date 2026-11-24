@@ -61,12 +61,17 @@ export interface PromptInput{
     title?: string;
     previousSvg?: string;
     failures?: string[];
+    details?: string;
 }
 
 export function buildUserPrompt(PromptInput: PromptInput){
     let prompt = PromptInput.title ? `Concept: ${PromptInput.title}` : "";
     
     prompt += `\nConcept description: ${PromptInput.text}`
+
+    if(PromptInput.details){
+        prompt += `\n\n Here is the Diagram guidance:\n${PromptInput.details}`
+    }
 
     if(PromptInput.failures?.length){
         prompt += `\n\n Your previous attempt was failed due to these checks:\n - ${PromptInput.failures.join("- ")} \n\n nFix every one of them and return the complete corrected SVG. Do not explain.`;  
