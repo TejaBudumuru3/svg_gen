@@ -2,7 +2,7 @@
 
 A Next.js application that prompts Gemini to generate animated SVG science diagrams for GCSE topics, validates them in code, and provides a review interface.
 
-Live app: (add link)
+Live app: https://udhi-tech-assessment-three.vercel.app/
 
 ## How to run it
 
@@ -73,15 +73,13 @@ The trade-off is persistence across devices. Decisions persist through page refr
 
 ## What failed, and how I fixed it
 
-The generation script failed with an ENOENT error on the first run. The script tried to write SVG files into an `output/` folder that did not exist yet. I fixed this by adding `mkdirSync("output", { recursive: true })` before the loop runs.
-
 Gemini returned 503 high demand errors during initial runs. My first retry setup only attempted two retries with 1-second delays, which was too short for the API to recover. I increased this in `app/lib/retry.ts` to 3 retries with longer waits (4s, 8s, 12s).
 
 The viewBox check crashed on empty or malformed model output. It tried to split the SVG string on `viewBox="` without checking whether the attribute existed first. I added an upfront existence check that returns a clean failure message instead of throwing an unhandled exception.
 
 The animation check gave false passes. It looked for the substring "animate" anywhere in the SVG, which matched class names and text labels. I tightened the check in `app/lib/validator.ts` to look specifically for `<animate `, `<animateTransform`, `<animateMotion`, `<set `, or CSS `@keyframes` with `animation:`.
 
-The safety check missed several dangerous patterns. I expanded `checkSafeContent` with a regex to catch all `on*=` event handler attributes like `onbegin`. I also added checks for `javascript:`, `data:`, external links, and tags like `<foreignObject>` or `<image>`. While doing this, I fixed a typo in the XML namespace filter where `http://www.w3.org` was written as `ww3.org`.
+The safety check missed several dangerous patterns. I expanded `checkSafeContent` with a regex to catch all `on*=` event handler attributes like `onbegin`. I also added checks for `javascript:`, `data:`, external links, and tags like `<foreignObject>` or `<image>`. While doing this, I fixed a typo in the XML namespace filter where `http://www.w3.org` was written as `ww3.org` and `https`.
 
 The fast-xml-parser package shows a deprecation warning for `XMLValidator` in the editor. The method still works as expected, so I kept it in place for now.
 
@@ -95,6 +93,6 @@ The fast-xml-parser package shows a deprecation warning for `XMLValidator` in th
 ## AI tools used
 
 - Claude (chat): planning, explaining concepts, and writing initial code drafts that I tested, rewrote, and verified.
-- Gemini (gemini-3.5-flash-lite): the model that generates the animated SVGs in the pipeline.
+- Gemini - gemini-3.5-flash-lite initially now I switch to 3.5-flash (due to continues 503 - unavaliable due to high workload): the model that generates the animated SVGs in the pipeline.
 - Antigravity: used to inspect the codebase and write this README.
-- [EDIT BEFORE SENDING: add a line for Cursor if I used it for testing, otherwise delete this line]
+

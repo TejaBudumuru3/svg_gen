@@ -8,7 +8,7 @@ const ai = new GoogleGenAI({
     apiKey: API_KEY
 })
 
-const COST_CAP = { input: 0.30, output: 2.50 }
+const COST_CAP = { input: 0.75, output: 3.75 }
 
 export async function generateSVG(input: PromptInput) {
     const prompt = buildUserPrompt(input);

@@ -139,7 +139,7 @@ export default function Home() {
 
                   <td className="p-4 align-top text-xs space-y-1">
                     <div className="text-zinc-700"><strong>Cost:</strong> ${(item.cost ?? 0).toFixed(5)}</div>
-                    <div className="text-zinc-700"><strong>Model:</strong> ${item.model}</div>
+                    <div className="text-zinc-700"><strong>Model:</strong> {item.model}</div>
                     <div className="text-zinc-700"><strong>API retries:</strong> {item.apiRetries}</div>
                     <div className="text-zinc-700"><strong>Validation retries:</strong> {item.validationRetries}</div>
                     <div className="text-zinc-900 text-[11px] mt-2">
@@ -178,7 +178,7 @@ export default function Home() {
                       onChange={(e) => handleReviewChange(String(item.id), { ...currentReview, notes: e.target.value })}
                       placeholder="Add review notes..."
                       rows={2}
-                      className="w-full text-xs p-2 border border-zinc-200 rounded focus:outline-blue-500"
+                      className="w-full text-xs text-zinc-600 p-2 border border-zinc-200 rounded focus:outline-blue-500"
                     />
 
                   </td>
